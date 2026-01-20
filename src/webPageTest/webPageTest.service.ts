@@ -29,6 +29,7 @@ export class WebPageTestService {
         params.append('category', 'performance');
         params.append('category', 'seo');
         params.append('category', 'accessibility');
+        params.append('category', 'best-practices');
 
         try {
             // 2. Call the Google API
@@ -45,24 +46,17 @@ export class WebPageTestService {
 
             const data = await response.json();
 
-            // 3. Extract and Return Scores
-            // Note: Scores are 0-1 (e.g., 0.98).
-            const lighthouse = data.lighthouseResult?.categories;
-            const audits = data.lighthouseResult?.audits;
+            // 3. Return the full lighthouseResult for frontend processing
+            // This includes all categories, audits, and metrics
+            if (!data.lighthouseResult) {
+                this.logger.error('No lighthouseResult in API response');
+                throw new HttpException(
+                    'Invalid response from PageSpeed Insights',
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                );
+            }
 
-            return {
-                url: url,
-                scores: {
-                    performance: lighthouse?.performance?.score ?? 0,
-                    seo: lighthouse?.seo?.score ?? 0,
-                    accessibility: lighthouse?.accessibility?.score ?? 0,
-                },
-                metrics: {
-                    lcp: audits?.['largest-contentful-paint']?.displayValue || 'N/A',
-                    cls: audits?.['cumulative-layout-shift']?.displayValue || 'N/A',
-                },
-                // Including essential core web vitals if needed, but keeping it minimal as requested
-            };
+            return data;
 
         } catch (error) {
             if (error instanceof HttpException) throw error;
