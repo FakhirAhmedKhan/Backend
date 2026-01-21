@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { WebPageTestModule } from './webPageTest/webPageTest.module';
+import { HistoryModule } from './history/history.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { WebPageTestModule } from './webPageTest/webPageTest.module';
     }),
     UsersModule,
     AuthModule,
+    HistoryModule,
     WebPageTestModule,
   ],
   controllers: [AppController],

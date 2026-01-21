@@ -1,15 +1,20 @@
 
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { HistoryService } from '../history/history.service';
+import { HistoryStatus } from '../history/history.schema';
 
 @Injectable()
 export class WebPageTestService {
     private readonly googleApiUrl = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
     private readonly logger = new Logger(WebPageTestService.name);
 
-    constructor(private readonly configService: ConfigService) { }
+    constructor(
+        private readonly configService: ConfigService,
+        private readonly historyService: HistoryService,
+    ) { }
 
-    async analyzeUrl(url: string) {
+    async analyzeUrl(url: string, userId?: string) {
         const apiKey = this.configService.get<string>('PAGESPEED_API_KEY');
 
         if (!apiKey) {
@@ -20,19 +25,16 @@ export class WebPageTestService {
             );
         }
 
-        // 1. Construct the Query Parameters
         const params = new URLSearchParams();
         params.append('url', url);
         params.append('key', apiKey);
         params.append('strategy', 'mobile');
-        // Request specific categories to separate performance, seo, accessibility
         params.append('category', 'performance');
         params.append('category', 'seo');
         params.append('category', 'accessibility');
         params.append('category', 'best-practices');
 
         try {
-            // 2. Call the Google API
             const response = await fetch(`${this.googleApiUrl}?${params.toString()}`);
 
             if (!response.ok) {
@@ -46,14 +48,26 @@ export class WebPageTestService {
 
             const data = await response.json();
 
-            // 3. Return the full lighthouseResult for frontend processing
-            // This includes all categories, audits, and metrics
             if (!data.lighthouseResult) {
                 this.logger.error('No lighthouseResult in API response');
                 throw new HttpException(
                     'Invalid response from PageSpeed Insights',
                     HttpStatus.INTERNAL_SERVER_ERROR,
                 );
+            }
+
+            // Optional: Save to history if userId is provided
+            if (userId) {
+                const perfScore = data.lighthouseResult.categories?.performance?.score || 0;
+                let status = HistoryStatus.ERROR;
+                if (perfScore >= 0.9) status = HistoryStatus.SUCCESS;
+                else if (perfScore >= 0.5) status = HistoryStatus.WARNING;
+
+                await this.historyService.create(userId, {
+                    title: `Audit: ${url}`,
+                    description: `Performance: ${Math.round(perfScore * 100)}%, SEO: ${Math.round((data.lighthouseResult.categories?.seo?.score || 0) * 100)}%`,
+                    status,
+                }).catch(err => this.logger.error('Failed to save history', err));
             }
 
             return data;
