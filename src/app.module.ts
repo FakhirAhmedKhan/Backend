@@ -24,6 +24,7 @@ import { HistoryModule } from './history/history.module';
     AuthModule,
     HistoryModule,
     WebPageTestModule,
+    
   ],
   controllers: [AppController],
   providers: [AppService],
