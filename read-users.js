@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 async function readUsers() {
-    const uri = process.env.MONGODB_URI;
+    const uri = process.env.MONGO_URI;
     console.log('Connecting to:', uri);
 
     try {
