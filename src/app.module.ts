@@ -26,7 +26,6 @@ import { ApkTestModule } from './apk-test/apk-test.module';
     HistoryModule,
     WebPageTestModule,
     ApkTestModule,
-
   ],
   controllers: [AppController],
   providers: [AppService],

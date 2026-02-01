@@ -21,39 +21,49 @@ export class ApkTestService {
         const token = await this.auth.getAccessToken();
 
         // 3️⃣ Call Test Lab API
-        const response = await axios.post(
-            `https://testing.googleapis.com/v1/projects/${this.projectId}/testMatrices`,
-            {
-                testSpecification: {
-                    androidRoboTest: {
-                        appApk: { gcsPath },
+        try {
+            const response = await axios.post(
+                `https://testing.googleapis.com/v1/projects/${this.projectId}/testMatrices`,
+                {
+                    testSpecification: {
+                        androidRoboTest: {
+                            appApk: { gcsPath },
+                        },
+                    },
+                    environmentMatrix: {
+                        androidDeviceList: {
+                            androidDevices: [
+                                {
+                                    androidModelId: dto.modelId, // e.g., 'pixel2'
+                                    androidVersionId: dto.versionId, // e.g., '28'
+                                    locale: 'en',
+                                    orientation: 'portrait',
+                                },
+                            ],
+                        },
+                    },
+                    resultStorage: {
+                        googleCloudStorage: {
+                            gcsPath: `gs://${this.storage.getBucketName()}/results/${Date.now()}/`,
+                        },
                     },
                 },
-                environmentMatrix: {
-                    androidDeviceList: {
-                        androidDevices: [
-                            {
-                                androidModelId: dto.modelId,
-                                androidVersionId: dto.versionId,
-                                locale: 'en',
-                                orientation: 'portrait',
-                            },
-                        ],
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
                     },
                 },
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            },
-        );
+            );
 
-        return {
-            matrixId: response.data.testMatrixId,
-            state: response.data.state,
-            resultUrl: `https://console.firebase.google.com/project/${this.projectId}/testlab/histories`,
-        };
+            return {
+                matrixId: response.data.testMatrixId,
+                state: response.data.state,
+                resultUrl: `https://console.firebase.google.com/project/${this.projectId}/testlab/histories`,
+            };
+        } catch (error) {
+            console.error('❌ Test Lab API Error Details:', JSON.stringify(error.response?.data || error.message, null, 2));
+            throw error;
+        }
     }
 
     async getStatus(matrixId: string) {
