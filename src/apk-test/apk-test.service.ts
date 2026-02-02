@@ -14,13 +14,9 @@ export class ApkTestService {
     ) { }
 
     async runTest(file: Express.Multer.File, dto: CreateTestDto) {
-        // 1️⃣ Upload APK
         const gcsPath = await this.storage.uploadApk(file);
-
-        // 2️⃣ Auth token
         const token = await this.auth.getAccessToken();
 
-        // 3️⃣ Call Test Lab API
         try {
             const response = await axios.post(
                 `https://testing.googleapis.com/v1/projects/${this.projectId}/testMatrices`,
@@ -34,8 +30,8 @@ export class ApkTestService {
                         androidDeviceList: {
                             androidDevices: [
                                 {
-                                    androidModelId: dto.modelId, // e.g., 'pixel2'
-                                    androidVersionId: dto.versionId, // e.g., '28'
+                                    androidModelId: dto.modelId,
+                                    androidVersionId: dto.versionId,
                                     locale: 'en',
                                     orientation: 'portrait',
                                 },
@@ -54,14 +50,17 @@ export class ApkTestService {
                     },
                 },
             );
-
+    //  return response.data;
             return {
                 matrixId: response.data.testMatrixId,
                 state: response.data.state,
                 resultUrl: `https://console.firebase.google.com/project/${this.projectId}/testlab/histories`,
             };
         } catch (error) {
-            console.error('❌ Test Lab API Error Details:', JSON.stringify(error.response?.data || error.message, null, 2));
+            console.error(
+                '❌ Test Lab API Error:',
+                JSON.stringify(error.response?.data || error.message, null, 2),
+            );
             throw error;
         }
     }
