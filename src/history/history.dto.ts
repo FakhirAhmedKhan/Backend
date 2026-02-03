@@ -8,10 +8,15 @@ import {
   Max,
   MaxLength,
   Min,
+  IsArray,
+  IsObject,
 } from 'class-validator';
-import { HistoryStatus } from './history.schema';
+import { HistoryStatus, TestType } from './history.schema';
 
 export class CreateHistoryDto {
+  @IsEnum(TestType)
+  testType: TestType;
+
   @IsString()
   @IsNotEmpty()
   @MaxLength(120)
@@ -24,12 +29,38 @@ export class CreateHistoryDto {
 
   @IsEnum(HistoryStatus)
   status: HistoryStatus;
+
+  @IsOptional()
+  @IsString()
+  resultId?: string; // MongoDB ObjectId
+
+  @IsOptional()
+  @IsObject()
+  resultSummary?: Record<string, any>;
+
+  @IsOptional()
+  @IsString()
+  testTarget?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  duration?: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
 }
 
 export class ListHistoryQueryDto {
   @IsOptional()
   @IsEnum(HistoryStatus)
   status?: HistoryStatus;
+
+  @IsOptional()
+  @IsEnum(TestType)
+  testType?: TestType;
 
   // ✅ pagination
   @IsOptional()
@@ -44,4 +75,9 @@ export class ListHistoryQueryDto {
   @Min(1)
   @Max(100)
   limit?: number = 20;
+
+  // ✅ optional search by title
+  @IsOptional()
+  @IsString()
+  search?: string;
 }

@@ -2,7 +2,7 @@
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HistoryService } from '../history/history.service';
-import { HistoryStatus } from '../history/history.schema';
+import { HistoryStatus, TestType } from '../history/history.schema';
 
 @Injectable()
 export class WebPageTestService {
@@ -64,6 +64,7 @@ export class WebPageTestService {
                 else if (perfScore >= 0.5) status = HistoryStatus.WARNING;
 
                 await this.historyService.create(userId, {
+                    testType: TestType.WEB,
                     title: `Audit: ${url}`,
                     description: `Performance: ${Math.round(perfScore * 100)}%, SEO: ${Math.round((data.lighthouseResult.categories?.seo?.score || 0) * 100)}%`,
                     status,

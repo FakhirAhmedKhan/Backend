@@ -14,6 +14,7 @@ import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateHistoryDto, ListHistoryQueryDto } from './history.dto';
 import { HistoryService } from './history.service';
+import { TestType } from './history.schema';
 
 /**
  * Helper to extract userId from request.
@@ -44,6 +45,25 @@ export class HistoryController {
     return this.historyService.findAll(userId, query);
   }
 
+  // ✅ Get history by test type (web, apk, exe)
+  @Get('type/:testType')
+  findByTestType(
+    @Req() req: Request,
+    @Param('testType') testType: TestType,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    const userId = getUserId(req);
+    return this.historyService.findByTestType(userId, testType, page, limit);
+  }
+
+  // ✅ Get statistics
+  @Get('stats')
+  getStats(@Req() req: Request) {
+    const userId = getUserId(req);
+    return this.historyService.getStatistics(userId);
+  }
+
   @Delete(':id')
   removeById(@Req() req: Request, @Param('id') id: string) {
     const userId = getUserId(req);
@@ -54,5 +74,12 @@ export class HistoryController {
   clearAll(@Req() req: Request) {
     const userId = getUserId(req);
     return this.historyService.clearAll(userId);
+  }
+
+  // ✅ Clear history by test type
+  @Delete('type/:testType')
+  clearByTestType(@Req() req: Request, @Param('testType') testType: TestType) {
+    const userId = getUserId(req);
+    return this.historyService.clearByTestType(userId, testType);
   }
 }

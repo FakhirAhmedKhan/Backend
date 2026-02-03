@@ -7,7 +7,9 @@ import {
   Get,
   Param,
   HttpException,
-  HttpStatus
+  HttpStatus,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -17,11 +19,16 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { ApkAnalysisService } from './apk-test.service';
 import { ApkDocument, ApkSchema } from 'src/schemas/Apk.schema';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { HistoryService } from '../history/history.service';
+import { TestType } from '../history/history.schema';
 
 @Controller('api/apk')
+@UseGuards(JwtAuthGuard)
 export class ApkAnalysisController {
   constructor(
     private readonly apkAnalysisService: ApkAnalysisService,
+    private readonly historyService: HistoryService,
     @InjectModel(ApkSchema.name) private reportModel: Model<ApkDocument>,
   ) { }
 
@@ -45,7 +52,7 @@ export class ApkAnalysisController {
       },
     }),
   )
-  async uploadApk(@UploadedFile() file: Express.Multer.File) {
+  async uploadApk(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
     try {
       if (!file) {
         throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
@@ -60,6 +67,17 @@ export class ApkAnalysisController {
         apkPath: file.path,
       });
       await report.save();
+
+      // ✅ Log to history
+      const userId = req.user?.userId || req.headers['x-user-id'];
+      if (userId) {
+        await this.historyService.createFromTestResult(
+          userId,
+          TestType.APK,
+          { ...analysisResult, _id: report._id },
+          ['uploaded', 'auto'],
+        );
+      }
 
       return {
         success: true,
