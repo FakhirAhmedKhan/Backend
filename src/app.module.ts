@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { WebPageTestModule } from './webPageTest/webPageTest.module';
 import { HistoryModule } from './history/history.module';
 import { ApkAnalysisModule } from './apk-test/apk-test.module';
+import { ExeModule } from './Exe-Test/Exe.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ApkAnalysisModule } from './apk-test/apk-test.module';
     HistoryModule,
     WebPageTestModule,
     ApkAnalysisModule,
+    ExeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
