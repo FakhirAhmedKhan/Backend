@@ -1,11 +1,15 @@
+// src/apk-analysis/apk-analysis.module.ts
 import { Module } from '@nestjs/common';
-import { ApkTestController } from './apk-test.controller';
-import { ApkTestService } from './apk-test.service';
-import { GoogleAuthService } from '../google/google-auth.service';
-import { StorageService } from '../google/storage.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ApkSchema, ReportSchema } from 'src/schemas/Apk.schema';
+import { ApkAnalysisController } from './apk-test.controller';
+import { ApkAnalysisService } from './apk-test.service';
 
 @Module({
-    controllers: [ApkTestController],
-    providers: [ApkTestService, GoogleAuthService, StorageService],
+    imports: [
+        MongooseModule.forFeature([{ name: ApkSchema.name, schema: ReportSchema }]),
+    ],
+    controllers: [ApkAnalysisController],
+    providers: [ApkAnalysisService],
 })
-export class ApkTestModule { }
+export class ApkAnalysisModule { }
