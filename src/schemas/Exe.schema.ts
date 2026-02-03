@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class ExeTestResult extends Document {
-  @Prop({ required: true })
+  @Prop({ required: false })
   testName: string;
 
   @Prop()
