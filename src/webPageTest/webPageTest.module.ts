@@ -4,8 +4,8 @@ import { WebPageTestService } from './webPageTest.service';
 import { HistoryModule } from '../history/history.module';
 
 @Module({
-    imports: [HistoryModule],
-    controllers: [WebPageTestController],
-    providers: [WebPageTestService],
+  imports: [HistoryModule],
+  controllers: [WebPageTestController],
+  providers: [WebPageTestService],
 })
-export class WebPageTestModule { }
+export class WebPageTestModule {}

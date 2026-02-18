@@ -14,7 +14,7 @@ import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateHistoryDto, ListHistoryQueryDto } from './history.dto';
 import { HistoryService } from './history.service';
-import { TestType } from './history.schema';
+import { TestType } from '../schemas/history.schema';
 
 /**
  * Helper to extract userId from request.

@@ -15,13 +15,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import * as path from 'path';
 import * as fs from 'fs';
 import { ApkAnalysisService } from './apk-test.service';
 import { ApkDocument, ApkSchema } from 'src/schemas/Apk.schema';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { HistoryService } from '../history/history.service';
-import { TestType } from '../history/history.schema';
+import { TestType } from '../schemas/history.schema';
 
 @Controller('api/apk')
 @UseGuards(JwtAuthGuard)
@@ -30,7 +29,7 @@ export class ApkAnalysisController {
     private readonly apkAnalysisService: ApkAnalysisService,
     private readonly historyService: HistoryService,
     @InjectModel(ApkSchema.name) private reportModel: Model<ApkDocument>,
-  ) { }
+  ) {}
 
   @Post('upload')
   @UseInterceptors(
@@ -38,16 +37,25 @@ export class ApkAnalysisController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
           cb(null, file.fieldname + '-' + uniqueSuffix + '.apk');
         },
       }),
       fileFilter: (req, file, cb) => {
-        if (file.mimetype === 'application/vnd.android.package-archive' ||
-          file.originalname.endsWith('.apk')) {
+        if (
+          file.mimetype === 'application/vnd.android.package-archive' ||
+          file.originalname.endsWith('.apk')
+        ) {
           cb(null, true);
         } else {
-          cb(new HttpException('Only APK files are allowed', HttpStatus.BAD_REQUEST), false);
+          cb(
+            new HttpException(
+              'Only APK files are allowed',
+              HttpStatus.BAD_REQUEST,
+            ),
+            false,
+          );
         }
       },
     }),
@@ -59,7 +67,9 @@ export class ApkAnalysisController {
       }
 
       // Analyze the APK
-      const analysisResult = await this.apkAnalysisService.analyzeApk(file.path);
+      const analysisResult = await this.apkAnalysisService.analyzeApk(
+        file.path,
+      );
 
       // Save to MongoDB
       const report = new this.reportModel({
@@ -95,7 +105,10 @@ export class ApkAnalysisController {
 
   @Get('reports')
   async getAllReports() {
-    const reports = await this.reportModel.find().sort({ createdAt: -1 }).exec();
+    const reports = await this.reportModel
+      .find()
+      .sort({ createdAt: -1 })
+      .exec();
     return reports;
   }
 

@@ -8,8 +8,8 @@ import { ExeTestResult } from 'src/schemas/Exe.schema';
 @Injectable()
 export class ExeService {
   constructor(
-    @InjectModel(ExeTestResult.name) 
-    private testResultModel: Model<ExeTestResult>
+    @InjectModel(ExeTestResult.name)
+    private testResultModel: Model<ExeTestResult>,
   ) {}
 
   async runElectronTest(config: {
@@ -35,12 +35,12 @@ export class ExeService {
 
       // Execute test script
       const page = await electronApp.newPage();
-      
+
       // Example: Run automated tests
       await this.executeTestSteps(page, config.testScript, results);
 
       results.status = 'passed';
-      
+
       await electronApp.close();
     } catch (error: any) {
       results.status = 'failed';
@@ -60,7 +60,7 @@ export class ExeService {
   private async executeTestSteps(page: any, script: string, results: any) {
     // Parse and execute test script
     // This is where you'd implement your test DSL or execute playwright commands
-    
+
     try {
       // Example test steps
       await page.waitForSelector('#app');
@@ -91,27 +91,27 @@ export class ExeService {
     switch (command.action) {
       case 'click':
         await page.click(command.selector);
-        results.steps.push({ 
-          step: `Clicked ${command.selector}`, 
-          status: 'passed' 
+        results.steps.push({
+          step: `Clicked ${command.selector}`,
+          status: 'passed',
         });
         break;
-      
+
       case 'type':
         await page.fill(command.selector, command.text);
-        results.steps.push({ 
-          step: `Typed in ${command.selector}`, 
-          status: 'passed' 
+        results.steps.push({
+          step: `Typed in ${command.selector}`,
+          status: 'passed',
         });
         break;
-      
+
       case 'assert':
         const element = await page.$(command.selector);
         const text = await element.textContent();
         if (text === command.expected) {
-          results.steps.push({ 
-            step: `Assert passed: ${command.selector}`, 
-            status: 'passed' 
+          results.steps.push({
+            step: `Assert passed: ${command.selector}`,
+            status: 'passed',
           });
         } else {
           throw new Error(`Expected ${command.expected}, got ${text}`);

@@ -11,7 +11,7 @@ import {
   IsArray,
   IsObject,
 } from 'class-validator';
-import { HistoryStatus, TestType } from './history.schema';
+import { HistoryStatus, TestType } from '../schemas/history.schema';
 
 export class CreateHistoryDto {
   @IsEnum(TestType)

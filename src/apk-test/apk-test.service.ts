@@ -32,14 +32,14 @@ export class ApkAnalysisService {
         security,
         performance,
         metadata,
-        apkSize
+        apkSize,
       });
 
       // Generate recommendations
       const recommendations = this.generateRecommendations({
         security,
         performance,
-        scores
+        scores,
       });
 
       // Handle label which might be a string or array depending on parser/resources
@@ -59,12 +59,14 @@ export class ApkAnalysisService {
         metadata: {
           minSdk: metadata.usesSdk.minSdkVersion,
           targetSdk: metadata.usesSdk.targetSdkVersion,
-          permissions: metadata.usesPermissions ? metadata.usesPermissions.map(p => p.name || p) : [],
-          activities: metadata.application.activity?.map(a => a.name) || [],
-          services: metadata.application.service?.map(s => s.name) || []
+          permissions: metadata.usesPermissions
+            ? metadata.usesPermissions.map((p) => p.name || p)
+            : [],
+          activities: metadata.application.activity?.map((a) => a.name) || [],
+          services: metadata.application.service?.map((s) => s.name) || [],
         },
         recommendations,
-        status: 'completed'
+        status: 'completed',
       };
     } catch (error) {
       this.logger.error(`Error analyzing APK: ${error.message}`);
@@ -86,7 +88,7 @@ export class ApkAnalysisService {
   private async analyzeSecurity(metadata: any): Promise<any> {
     // Handle permissions which might be objects or strings
     const rawPermissions = metadata.usesPermissions || [];
-    const permissions = rawPermissions.map(p => p.name || p);
+    const permissions = rawPermissions.map((p) => p.name || p);
 
     const dangerousPermissions = [
       'android.permission.READ_CONTACTS',
@@ -103,15 +105,17 @@ export class ApkAnalysisService {
       'android.permission.WRITE_CALL_LOG',
       'android.permission.BODY_SENSORS',
       'android.permission.READ_EXTERNAL_STORAGE',
-      'android.permission.WRITE_EXTERNAL_STORAGE'
+      'android.permission.WRITE_EXTERNAL_STORAGE',
     ];
 
-    const foundDangerousPerms = permissions.filter(p =>
-      dangerousPermissions.includes(p)
+    const foundDangerousPerms = permissions.filter((p) =>
+      dangerousPermissions.includes(p),
     );
 
     // Check if debuggable
-    const debuggable = metadata.application?.debuggable === 'true' || metadata.application?.debuggable === true;
+    const debuggable =
+      metadata.application?.debuggable === 'true' ||
+      metadata.application?.debuggable === true;
 
     return {
       isSigned: true, // APK parser assumes it's signed if parseable
@@ -119,11 +123,14 @@ export class ApkAnalysisService {
       permissions,
       dangerousPermissions: foundDangerousPerms,
       permissionCount: permissions.length,
-      dangerousPermissionCount: foundDangerousPerms.length
+      dangerousPermissionCount: foundDangerousPerms.length,
     };
   }
 
-  private async analyzePerformance(apkPath: string, metadata: any): Promise<any> {
+  private async analyzePerformance(
+    apkPath: string,
+    metadata: any,
+  ): Promise<any> {
     const apkSizeMB = this.getApkSize(apkPath);
 
     // Estimate based on APK characteristics
@@ -169,10 +176,10 @@ export class ApkAnalysisService {
     const accScore = this.calculateAccessibilityScore(data.metadata);
 
     const weights = {
-      performance: 0.30,
-      security: 0.30,
+      performance: 0.3,
+      security: 0.3,
       bestPractices: 0.25,
-      accessibility: 0.15
+      accessibility: 0.15,
     };
 
     const overall =
@@ -186,7 +193,7 @@ export class ApkAnalysisService {
       performance: perfScore,
       security: secScore,
       bestPractices: bpScore,
-      accessibility: accScore
+      accessibility: accScore,
     };
   }
 
@@ -248,9 +255,13 @@ export class ApkAnalysisService {
     const recommendations: string[] = [];
 
     if (data.scores.performance < 70) {
-      recommendations.push('Optimize APK size using ProGuard/R8 and resource shrinking');
+      recommendations.push(
+        'Optimize APK size using ProGuard/R8 and resource shrinking',
+      );
       if (data.performance.apkSizeMB > 50) {
-        recommendations.push('Consider using Android App Bundle for smaller downloads');
+        recommendations.push(
+          'Consider using Android App Bundle for smaller downloads',
+        );
       }
     }
 
@@ -259,7 +270,9 @@ export class ApkAnalysisService {
         recommendations.push('Disable debuggable flag in production builds');
       }
       if (data.security.dangerousPermissionCount > 5) {
-        recommendations.push('Review and minimize dangerous permissions requested');
+        recommendations.push(
+          'Review and minimize dangerous permissions requested',
+        );
       }
     }
 

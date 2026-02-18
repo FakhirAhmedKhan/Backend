@@ -6,7 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import { CreateHistoryDto, ListHistoryQueryDto } from './history.dto';
-import { History, HistoryDocument, TestType } from './history.schema';
+import { History, HistoryDocument, TestType } from '../schemas/history.schema';
 
 @Injectable()
 export class HistoryService {

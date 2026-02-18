@@ -8,7 +8,9 @@ import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: ExeTestResult.name, schema: ExeTestResultSchema }]),
+    MongooseModule.forFeature([
+      { name: ExeTestResult.name, schema: ExeTestResultSchema },
+    ]),
     HistoryModule,
     AuthModule,
   ],
