@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ExeController } from './Exe.controller';
-import { ExeService } from './Exe.service';
+import { ExeTestController } from './Exe.controller';
+import { ExeTestService } from './Exe.service';
 import { ExeTestResult, ExeTestResultSchema } from 'src/schemas/Exe.schema';
 import { HistoryModule } from '../history/history.module';
 import { AuthModule } from '../auth/auth.module';
@@ -14,8 +14,8 @@ import { AuthModule } from '../auth/auth.module';
     HistoryModule,
     AuthModule,
   ],
-  controllers: [ExeController],
-  providers: [ExeService],
-  exports: [ExeService],
+  controllers: [ExeTestController],
+  providers: [ExeTestService],
+  exports: [ExeTestService],
 })
 export class ExeModule {}

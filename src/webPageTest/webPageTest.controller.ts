@@ -11,10 +11,9 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('web-page-test')
 export class WebPageTestController {
-  constructor(private readonly webPageTestService: WebPageTestService) {}
+  constructor(private readonly webPageTestService: WebPageTestService) { }
 
   @Get('audit')
-  @UseGuards(JwtAuthGuard)
   async analyze(@Req() req: any, @Query('url') url: string) {
     if (!url) {
       throw new BadRequestException('URL query parameter is required');
